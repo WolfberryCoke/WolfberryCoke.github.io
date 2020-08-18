@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/18/dKUuhd.png">
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/18/dKUntH.png">
 <meta property="article:published_time" content="2020-08-18T09:43:56.000Z">
-<meta property="article:modified_time" content="2020-08-18T09:47:56.568Z">
+<meta property="article:modified_time" content="2020-08-18T09:50:12.428Z">
 <meta property="article:author" content="Wolfberry">
 <meta property="article:tag" content="NLP">
 <meta property="article:tag" content="数据预处理">
@@ -178,7 +178,7 @@
         <p>在搭建NLP模型之前，我们需要进行文本处理，也就是把<strong>文本</strong>变成<strong>数字序列</strong>（Text to Sequence）。文本处理的好坏直接影响模型的准确率，所以我们应该重视文本处理。</p>
 <a id="more"></a>
 
-<h3 id="1-Tokenization"><a href="#1-Tokenization" class="headerlink" title="1. Tokenization"></a>1. Tokenization</h3><p>Tokenization是将一段文本分割成一系列tokens的操作。这里一个token一般是指一个单词。</p>
+<h2 id="1-Tokenization"><a href="#1-Tokenization" class="headerlink" title="1. Tokenization"></a>1. Tokenization</h2><p>Tokenization是将一段文本分割成一系列tokens的操作。这里一个token一般是指一个单词。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">text[i] = <span class="string">&quot;The cat sat on the mat&quot;</span></span><br><span class="line">tokens[i] = [<span class="string">&quot;The&quot;</span>, <span class="string">&quot;cat&quot;</span>, <span class="string">&quot;sat&quot;</span>, <span class="string">&quot;on&quot;</span>, <span class="string">&quot;the&quot;</span>, <span class="string">&quot;mat&quot;</span>]</span><br></pre></td></tr></table></figure>
 
 <p>Tokenization后，一个字符串变成了一个个单词的列表。</p>
@@ -188,13 +188,13 @@
 <li>是否需要去掉停用词（the, a, of）：这些词在文本分类问题中没有任何有用的信息。</li>
 <li>拼写检查：（mimimize——&gt;minimize）</li>
 </ul>
-<h3 id="2-Build-Dictionary"><a href="#2-Build-Dictionary" class="headerlink" title="2. Build Dictionary"></a>2. Build Dictionary</h3><p>建立字典，将文本中出现的每一个单词映射到一个正整数。</p>
+<h2 id="2-Build-Dictionary"><a href="#2-Build-Dictionary" class="headerlink" title="2. Build Dictionary"></a>2. Build Dictionary</h2><p>建立字典，将文本中出现的每一个单词映射到一个正整数。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">text = <span class="string">&quot;The cat sat on the mat&quot;</span></span><br><span class="line">tokens = [<span class="string">&quot;The&quot;</span>, <span class="string">&quot;cat&quot;</span>, <span class="string">&quot;sat&quot;</span>, <span class="string">&quot;on&quot;</span>, <span class="string">&quot;the&quot;</span>, <span class="string">&quot;mat&quot;</span>]</span><br><span class="line">token_index = &#123;<span class="string">&quot;the&quot;</span>:<span class="number">1</span>, <span class="string">&quot;cat&quot;</span>:<span class="number">2</span>, <span class="string">&quot;sat&quot;</span>:<span class="number">3</span>, <span class="string">&quot;on&quot;</span>:<span class="number">4</span>, <span class="string">&quot;mat&quot;</span>:<span class="number">5</span>, ...&#125;</span><br></pre></td></tr></table></figure>
 
 <p>经过上述操作，任何文本都可以以一个正整数列表来表示。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sequences = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
 
-<h3 id="3-Align-Sequences"><a href="#3-Align-Sequences" class="headerlink" title="3. Align Sequences"></a>3. Align Sequences</h3><p>由于不同数据的文本长度不一样，所以得到的数据是不对齐的，然而数据通常是以矩阵或张量的形式存储的，这就要求我们将这些长短不一的数据对齐。</p>
+<h2 id="3-Align-Sequences"><a href="#3-Align-Sequences" class="headerlink" title="3. Align Sequences"></a>3. Align Sequences</h2><p>由于不同数据的文本长度不一样，所以得到的数据是不对齐的，然而数据通常是以矩阵或张量的形式存储的，这就要求我们将这些长短不一的数据对齐。</p>
 <p>解决方法是：将文本的长度固定为w，把长文本剪切，只保留最后w个词。给短文本用”null”补齐。假设w=7，则</p>
 <ul>
 <li>The fat cat still on the big red mat 变为 sat still on the big red mat</li>
@@ -202,11 +202,11 @@
 </ul>
 <p>现在，所有序列长度都为w，所以所有文本都可以用一个矩阵来表示。</p>
 <p><img src="https://s1.ax1x.com/2020/08/18/dKuFVx.png" alt="dKuFVx.png"></p>
-<h3 id="4-Word-to-Vector"><a href="#4-Word-to-Vector" class="headerlink" title="4. Word to Vector"></a>4. Word to Vector</h3><p>现在每个单词都用一个正整数表示，下面的步骤是将这些categorical的特征变成数值特征。</p>
+<h2 id="4-Word-to-Vector"><a href="#4-Word-to-Vector" class="headerlink" title="4. Word to Vector"></a>4. Word to Vector</h2><p>现在每个单词都用一个正整数表示，下面的步骤是将这些categorical的特征变成数值特征。</p>
 <p>可以用一个One-hot向量来表示一个单词。例如：good的index是2，那么对应的One-hot向量为<code>e2 = [0, 1, 0, 0, ... , 0]</code>。One-hot向量的维度是字典中单词的个数。如果字典中有10,000个单词，那一个单词需要用10,000维的向量表示。如果不做任何处理，将这些高维向量直接输入神经网络，那么神经元个数会爆炸。所以我们需要做Word Embedding，把高维向量映射到低维向量：<br>$P^T \times e_i = x_i$</p>
 <p>其中，$P^T$是 $d \times v$ 的参数矩阵，$d$ 是映射后向量的维度，由用户自己决定。$v$ 是字典中单词的数量。参数矩阵从训练数据中得到，$e_i$ 是 $v \times 1$ 的One-hot向量。$x_i$ 是降维后的词向量。</p>
 <p><img src="https://s1.ax1x.com/2020/08/18/dKJWOU.png" alt="dKJWOU.png"></p>
-<h3 id="5-Recap"><a href="#5-Recap" class="headerlink" title="5. Recap"></a>5. Recap</h3><p>当处理文本分类问题时，第一步是将文本变为单词的列表，第二步将列表中的元素（单词）映射到一个字典中，第三步将不同长度的文本对齐，使其能用一个矩阵表示，第四步是将正整数映射为One-hot向量，再将One-hot向量映射为低维向量。最后将降维后的矩阵输入到神经网络中完成分类任务。</p>
+<h2 id="5-Recap"><a href="#5-Recap" class="headerlink" title="5. Recap"></a>5. Recap</h2><p>当处理文本分类问题时，第一步是将文本变为单词的列表，第二步将列表中的元素（单词）映射到一个字典中，第三步将不同长度的文本对齐，使其能用一个矩阵表示，第四步是将正整数映射为One-hot向量，再将One-hot向量映射为低维向量。最后将降维后的矩阵输入到神经网络中完成分类任务。</p>
 <p><img src="https://s1.ax1x.com/2020/08/18/dKUuhd.png" alt="dKUuhd.png"><br><img src="https://s1.ax1x.com/2020/08/18/dKUntH.png" alt="dKUntH.png"></p>
 
       
@@ -284,7 +284,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Tokenization"><span class="toc-number">1.</span> <span class="toc-text">1. Tokenization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Build-Dictionary"><span class="toc-number">2.</span> <span class="toc-text">2. Build Dictionary</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Align-Sequences"><span class="toc-number">3.</span> <span class="toc-text">3. Align Sequences</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Word-to-Vector"><span class="toc-number">4.</span> <span class="toc-text">4. Word to Vector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Recap"><span class="toc-number">5.</span> <span class="toc-text">5. Recap</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Tokenization"><span class="toc-number">1.</span> <span class="toc-text">1. Tokenization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Build-Dictionary"><span class="toc-number">2.</span> <span class="toc-text">2. Build Dictionary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Align-Sequences"><span class="toc-number">3.</span> <span class="toc-text">3. Align Sequences</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Word-to-Vector"><span class="toc-number">4.</span> <span class="toc-text">4. Word to Vector</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Recap"><span class="toc-number">5.</span> <span class="toc-text">5. Recap</span></a></li></ol>
                     </div>
                 </span>
             </div>
