@@ -6,15 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Category: 博客搭建 | Blog | Wolfberry</title>
+  <title>深入理解SVD | Blog | Wolfberry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Blog | Wolfberry">
-<meta property="og:url" content="http://yoursite.com/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/index.html">
+  <meta name="description" content="0. 前言SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。 1. 实对称矩阵的分解先来看一个直观的例子： 考虑以下线性变换$M &#x3D; \left[\begin{matrix}2 &amp;&amp; 1 \ 1 &amp;&amp; 2\end{">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解SVD">
+<meta property="og:url" content="http://yoursite.com/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/index.html">
 <meta property="og:site_name" content="Blog | Wolfberry">
+<meta property="og:description" content="0. 前言SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。 1. 实对称矩阵的分解先来看一个直观的例子： 考虑以下线性变换$M &#x3D; \left[\begin{matrix}2 &amp;&amp; 1 \ 1 &amp;&amp; 2\end{">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/19/dle89U.png">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/19/dlZjpD.png">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/1042406/201701/1042406-20170105115457425-1545975626.png">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/1042406/201701/1042406-20170105140822191-1774139119.png">
+<meta property="article:published_time" content="2020-08-19T08:50:24.000Z">
+<meta property="article:modified_time" content="2020-08-19T08:51:23.581Z">
 <meta property="article:author" content="Wolfberry">
+<meta property="article:tag" content="SVD">
+<meta property="article:tag" content="降维">
+<meta property="article:tag" content="矩阵分解">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2020/08/19/dle89U.png">
   
   
     <link rel="icon" href="/assets/img/head.png">
@@ -144,79 +156,179 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-深入理解SVD" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/15/%E8%BF%99%E4%B8%AA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99%E7%9A%84%E5%87%BA%E7%94%9F%E8%AF%81%E6%98%8E/" class="archive-article-date">
-  	<time datetime="2020-08-15T07:49:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/15/%E8%BF%99%E4%B8%AA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99%E7%9A%84%E5%87%BA%E7%94%9F%E8%AF%81%E6%98%8E/">这个博客网站的出生证明</a>
+    <h1 class="article-title" itemprop="name">
+      深入理解SVD
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/" class="archive-article-date">
+  	<time datetime="2020-08-19T08:50:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。</p>
+<h2 id="1-实对称矩阵的分解"><a href="#1-实对称矩阵的分解" class="headerlink" title="1. 实对称矩阵的分解"></a>1. 实对称矩阵的分解</h2><p>先来看一个直观的例子：</p>
+<p>考虑以下线性变换$M = \left[\begin{matrix}2 &amp;&amp; 1 \ 1 &amp;&amp; 2\end{matrix}\right]$， 该矩阵变换效果如图所示：</p>
+<img src="https://s1.ax1x.com/2020/08/19/dle89U.png" alt="dle89U.png" style="zoom: 80%;" />
+
+<p>经过该变换后，原来的基底 $(u_x, u_y)$ 经过变换以后变为 $(v_x, v_y)$，而 $(v_x, v_y)$ 不正交，无法得出旋转角度、拉伸倍数等信息。若将原图旋转45度，再做 $M$ 变换：</p>
+<p>​                                    <img src="https://s1.ax1x.com/2020/08/19/dlZjpD.png" alt="dlZjpD.png" style="zoom: 80%;" /> </p>
+<p>旋转后的基底为 $(\frac{\sqrt 2}{2}, \frac{\sqrt 2}{2})$ 和 $(-\frac{\sqrt 2}{2}, \frac{\sqrt 2}{2})$，经过 $M$ 变换后的基底为 $(\frac{3\sqrt2}{2}, \frac{3\sqrt2}{2})$ 和 $(-\frac{\sqrt2}{2}, \frac{\sqrt2}{2})$，相当于做了一个 $\left[ \begin{matrix} 3 &amp;&amp; 0 \ 0 &amp;&amp; 1\end{matrix}\right]$ 的变换，经过该变换后，原来正交的基底仍然正交。</p>
+<p>所以，对于任意一个对称矩阵 $M$ ，若能找到一些相互正交的 $v_i$，使得 $Mv_i$是沿着 $v_i$ 方向的拉伸变换，即有 $Mv_i = \lambda_iv_i$  。这里，$\lambda_i$ 为矩阵的特征值；$v_i$ 是特征向量。<strong>由于对称矩阵中不同特征值对应的特征向量正交，所以 $v_i$ 必定两两正交。</strong></p>
+<p>以上面的矩阵 $M = \left[\begin{matrix}2 &amp;&amp; 1 \ 1 &amp;&amp; 2\end{matrix}\right]$ 为例，$M$ 的特征向量为 $v_1= [\frac{\sqrt2}{2}, \frac{\sqrt2}{2}]$  和 $v_2 = [-\frac{\sqrt2}{2}, \frac{\sqrt2}{2}]$  ，对应的特征值为 $\lambda_1 = 3, \lambda_2 = 1$。</p>
+<p>则 $M = \left[ \begin{matrix} —v_1— \ —v_2—\end{matrix}\right] \left[ \begin{matrix} \lambda_1 &amp;&amp; 0 \ 0 &amp;&amp; \lambda_2 \end{matrix}\right] \left[ \begin{matrix} —v_1— \ —v_2—\end{matrix}\right]^T$</p>
+<p>矩阵对角化分解的目的是：找到一组正交单位基，使得经过变换后的基仍然正交。</p>
+<p><strong><em>补充证明：实对称矩阵不同特征值对应的特征值两两正交</em></strong></p>
+<p>证明：对任意实对称矩阵 $A$， 假设 $A$ 的两个特征值为 $m, n(m \ne n)$ 对应的特征向量为 $p, q$，则有：</p>
+<p>​     $Aq = nq, Ap = mp$</p>
+<p>$\Rightarrow p^TAq = np^Tq, q^TAp = mq^Tp$</p>
+<p>$\Rightarrow np^Tq = (mq^Tp)^T = mp^Tq$</p>
+<p>$\Rightarrow (n-m)p^Tq$ = 0</p>
+<p>又 $m\ne n$，所以 $p^Tq = 0$，$p, q$ 正交。</p>
+<h2 id="2-SVD分解"><a href="#2-SVD分解" class="headerlink" title="2. SVD分解"></a>2. SVD分解</h2><p>上述变换是基于对称阵的，如果将对称阵变为一般矩阵 $A_{m \times n}$，那么上述分解的过程就称作奇异值分解(SVD)。即在 $n$ 维空间中找到一组正交基，经过 $A$ 变换后在 $m$ 维空间中仍然正交。</p>
+<p>考虑矩阵 $A^TA$ ，我们取 $A^TA$ 的特征向量并单位化，得到 $(v_1, v_2, …, v_n)$，$||Av||^2 = v^TA^TAv = v^T\lambda v = \lambda$，所以 $|Av| = \sqrt \lambda = \sigma$ 。$\sigma$ 为矩阵的奇异值。</p>
+<p>正交单位向量 $(v_1, v_2, … v_n)$ 经过 $A$ 变换后得到$(Av_1, Av_2, …)$，将其单位化得到一组标准正交基 $(u_1, u_2, …)$，则 $Av_i = \sigma_iu_i$，$AV = (\sigma_1u_1, … ,\sigma_nu_n) = U\Sigma$ ，得到矩阵 $A$ 的分解</p>
+<p>$A = U\Sigma V^{-1} = U\Sigma V^T$</p>
+<p>其中， $V^T$ 为原向量空间的标准正交基，$U$ 为变换后空间标准正交基，$\Sigma$ 为对角矩阵，对角线的值为奇异值。</p>
+<img src="https://images2015.cnblogs.com/blog/1042406/201701/1042406-20170105115457425-1545975626.png" alt="img" style="zoom:80%;" />
+
+
+
+<h2 id="3-SVD的性质"><a href="#3-SVD的性质" class="headerlink" title="3. SVD的性质"></a>3. SVD的性质</h2><p>对于奇异值，它跟我们特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的减少特别的快，<strong>在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例</strong>。也就是说，我们也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵。也就是说：</p>
+<p>$A_{m \times n} = U_{m \times m}\Sigma_{m \times n} V^T_{n \times n} \approx U_{m \times k}\Sigma_{k \times k} V^T_{k \times n}$</p>
+<p>其中k要比n小很多，也就是一个大的矩阵A可以用三个小的矩阵 $U_{m \times k},\Sigma_{k \times k} ,V^T_{k \times n}$ 来表示，如下图所示。</p>
+<p><img src="https://images2015.cnblogs.com/blog/1042406/201701/1042406-20170105140822191-1774139119.png" alt="img"></p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">blog</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">SVD</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">yilia</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">降维</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">前端</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">矩阵分解</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/博客搭建//" class="article-tag-list-link color5">博客搭建</a>
+        			<a href="/categories/数学基础//" class="article-tag-list-link color5">数学基础</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2020/08/18/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">文本处理</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0. 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%AE%9E%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5%E7%9A%84%E5%88%86%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">1. 实对称矩阵的分解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SVD%E5%88%86%E8%A7%A3"><span class="toc-number">3.</span> <span class="toc-text">2. SVD分解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-SVD%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="toc-number">4.</span> <span class="toc-text">3. SVD的性质</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -239,10 +351,10 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
-		isCategory: true,
+		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
 		root: "/",
