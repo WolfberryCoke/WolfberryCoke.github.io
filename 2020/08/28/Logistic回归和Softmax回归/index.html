@@ -6,15 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2020/8 | Blog | Wolfberry</title>
+  <title>Logistic回归和Softmax回归 | Blog | Wolfberry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Blog | Wolfberry">
-<meta property="og:url" content="http://yoursite.com/archives/2020/08/index.html">
+  <meta name="description" content="0. 前言 逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Logistic回归和Softmax回归">
+<meta property="og:url" content="http://yoursite.com/2020/08/28/Logistic%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92/index.html">
 <meta property="og:site_name" content="Blog | Wolfberry">
+<meta property="og:description" content="0. 前言 逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/27/dhsrEn.png">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/28/d5zh11.jpg">
+<meta property="article:published_time" content="2020-08-28T02:47:24.000Z">
+<meta property="article:modified_time" content="2020-08-28T02:48:50.034Z">
 <meta property="article:author" content="Wolfberry">
+<meta property="article:tag" content="Logistic Regression">
+<meta property="article:tag" content="Softmax">
+<meta property="article:tag" content="Classification">
+<meta property="article:tag" content="Math">
+<meta property="article:tag" content="Machine Learning">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2020/08/27/dhsrEn.png">
   
   
     <link rel="icon" href="/assets/img/head.png">
@@ -144,36 +156,154 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Logistic回归和Softmax回归" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/28/Logistic%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92/" class="archive-article-date">
-  	<time datetime="2020-08-28T02:47:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-28</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/28/Logistic%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92/">Logistic回归和Softmax回归</a>
+    <h1 class="article-title" itemprop="name">
+      Logistic回归和Softmax回归
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2020/08/28/Logistic%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92/" class="archive-article-date">
+  	<time datetime="2020-08-28T02:47:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0-前言">0. 前言</h2>
+<p>逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。</p>
+<a id="more"></a>
+<h2 id="1-逻辑回归">1. 逻辑回归</h2>
+<p>逻辑回归是由线性回归演化而来的，这也是为什么它尽管是分类模型却仍然叫“回归”。逻辑回归本质上是归一化后的线性回归，它把线性回归的输出 $\theta^T x$ 通过Sigmoid“压缩”到 $(0, 1)$ 区间，表示预测结果属于某一类别的概率：<br>
+$$<br>
+h_\theta(x) = g(\theta^Tx)<br>
+$$</p>
+<p>$$<br>
+g(z) = \frac{1}{1+e^{-z}}<br>
+$$</p>
+<p>​															<img src="https://s1.ax1x.com/2020/08/27/dhsrEn.png" alt="dhsrEn.png"></p>
+<p>由于 $h_\theta(x)$ 表示结果为1的概率，因此分类结果为类别1和类别0的概率分别为：<br>
+$$<br>
+P(y=1|x;\theta) = h_\theta(x) = \frac{1}{1+e^{-\theta^Tx}} \<br>
+P(y=0|x;\theta) = 1-h_\theta(x) = \frac{e^{-\theta^Tx}}{1+e^{-\theta^Tx}}<br>
+$$<br>
+可以把公式(3)合并成一个式子：<br>
+$$<br>
+P(y|x;\theta) = (h_\theta(x))^y(1-h_\theta(x))^{1-y}<br>
+$$<br>
+使用最大似然估计来估计参数 $\theta$ 的值，取似然函数：<br>
+$$<br>
+L(\theta) = \prod_{i=1}^{m}P(y^{(i)}|x^{(i)};\theta) = \prod_{i=1}^{m}(h_\theta(x^{(i)}))^{y^{(i)}}(1-h_\theta(x)^{(i)})^{1-y^{(i)}}<br>
+$$<br>
+取对数得：<br>
+$$<br>
+l(\theta) = logL(\theta) = \sum_{i=1}^{m}(y^{(i)}log(h_\theta(x^{(i)})+(1-y^{(i)})log(1-h_\theta(x^{(i)}))))<br>
+$$<br>
+优化目标是取 $l(\theta)$ 的最大值，将 $l(\theta)$ 乘以负的系数（这样就转化为求最小值，可以用梯度下降法），再除以样本数量m，得到损失函数：<br>
+$$<br>
+J(\theta) = -\frac{1}{m}l(\theta)<br>
+$$<br>
+使用梯度下降法来求得 $argmin(J(\theta))$ :<br>
+$$<br>
+\theta_j := \theta_j - \alpha \frac{\partial}{\partial\theta_j}J(\theta), j = (0, 1, … n) \<br>
+\theta_j := \theta_j - \alpha \sum_{i=1}^{m}(y^{(i)}-h_\theta(x^{(i)})x_j^{(i)}), j = (0, 1, … n)<br>
+$$<br>
+现在我们已经求得了最优的参数，现在如果需要预测一个数据x，只需要代入假设函数 $h_\theta(x)$，函数输出的结果就是类别为1的概率。</p>
+<h2 id="2-Softmax回归">2. Softmax回归</h2>
+<p>对于有 $k$ 个标记的分类问题，分类函数是下面这样：</p>
+<p>$h_{\theta}\left(x^{(i)}\right)=\left[\begin{array}{c}<br>
+p\left(y^{(i)}=1 \mid x^{(i)}, \theta\right) \<br>
+p\left(y^{(i)}=2 \mid x^{(i)}, \theta\right) \<br>
+\vdots \<br>
+p\left(y^{(i)}=k \mid x^{(i)}, \theta\right)<br>
+\end{array}\right]=\frac{1}{\sum_{c=1}^{k} e^{\theta_{c} T(i)}}\left[\begin{array}{c}<br>
+e^{\theta_{1}^{T} x^{(i)}} \<br>
+e^{\theta_{2}^{T} x^{(i)}} \<br>
+\vdots \<br>
+e^{\theta_{k}^{T} x^{(i)}}<br>
+\end{array}\right]$</p>
+<p>其中 $\frac{1}{\sum_{j=1}^{k} e^{\theta_{j}^{T} x^{(i)}}}$ 是归一化参数，为了使所有概率值和为1，下图很直观地描述了Softmax函数的计算过程。</p>
+<p><img src="https://s1.ax1x.com/2020/08/28/d5zh11.jpg" alt="d5zh11.jpg"></p>
+<p>类比逻辑回归，得到损失函数：<br>
+$$<br>
+J(\theta)=-\frac{1}{m}\left[\sum_{i=1}^{m} \sum_{j=1}^{k} 1\left{y^{(i)}=j\right} \log \frac{e^{\theta_{j}^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}}}\right]<br>
+$$<br>
+其中的 $1\left{…\right}$ 的含义为：大括号中的值为真时，该函数的结果就为1，否则其结果就为0。</p>
+<p>求偏导，得:<br>
+$$<br>
+\nabla_{\theta_{j}} J(\theta)=-\frac{1}{m} \sum_{i=1}^{m}\left[x^{(i)}\left(1\left{y^{(i)}=j\right}-p\left(y^{(i)}=j \mid x^{(i)} ; \theta\right)\right)\right]<br>
+$$<br>
+之后和逻辑回归类似，用梯度下降法求得参数即可。</p>
+<h2 id="3-逻辑回归和Softmax回归的联系">3. 逻辑回归和Softmax回归的联系</h2>
+<p>首先介绍一个Softmax的性质——参数冗余</p>
+<p>假设我们从参数向量 $\theta_j$ 中减去了向量 $\phi$，这时，每一个 $\theta_j$ 都变成了 $\theta_j - \phi$。此时假设函数变成了以下的式子：<br>
+$$<br>
+\begin{aligned}<br>
+p\left(y^{(i)}=j \mid x^{(i)} ; \theta\right) &amp;=\frac{e^{\left(\theta_{j}-\psi\right)^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\left(\theta_{l}-\psi\right)^{T} x^{(i)}}} \<br>
+&amp;=\frac{e^{\theta_{j}^{T} x^{(i)}} e^{-\psi^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}} e^{-\psi^{T} x^{(i)}}} \<br>
+&amp;=\frac{e^{\theta_{j}^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}}}<br>
+\end{aligned}<br>
+$$<br>
+这个性质说明，从参数向量中减去任何的值，都不影响最后的结果。也就是说，如果参数 $(\theta_1, \theta_2, … \theta_k)$ 是极小值点，那么 $(\theta_1-\phi, \theta_2-\phi, … \theta_k-\phi)$ 也是极小值点。所以，当 $\phi = \theta_1$ 时，参数变为 $(0, \theta_2^{’}, \theta_3^{’}… \theta_k^{’})$ ，说明原来有一个冗余的参数。</p>
+<p>我们之前提到，Softmax解决多分类问题，逻辑回归解决二分类问题。那么当Softmax中类别为2的时候，它也是解决二分类问题。下面我们将 $k=2$ 代入Softmax函数中，和逻辑回归的公式比较：<br>
+$$<br>
+h_{\theta}(x)=\frac{1}{e^{\theta_{1}^{T} x}+e^{\theta_{2}^{T} x^{(i)}}}\left[\begin{array}{l}<br>
+e^{\theta_{1}^{T} x} \<br>
+e^{\theta_{2}^{T} x}<br>
+\end{array}\right]<br>
+$$<br>
+根据上面提到的参数冗余特点，令 $\phi = \theta_1$ ，得：<br>
+$$<br>
+h_{\theta}\left(x_{i}\right)=\frac{1}{e^{\overrightarrow{0}^{T} x_{i}}+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x_{i}}}\left[\begin{array}{c}<br>
+e^{\overrightarrow0^T} x_{i} \<br>
+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x_{i}}<br>
+\end{array}\right] \<br>
+=\left[\begin{array}{c}<br>
+\frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x^{(i)}}} \<br>
+1-\frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x^{(i)}}}<br>
+\end{array}\right]<br>
+$$<br>
+我们发现，当 $k = 2$ 时，Softmax预测其中一个类别的概率为 $\frac{1}{1+e^{\left(\theta^{\prime}\right)^{T} x^{(i)}}}$ ，另一个为 $1-\frac{1}{1+e^{\left(\theta^{\prime}\right)^{T} x^{(i)}}}$ ，这和逻辑回归的假设函数是完全一致的。所以，Softmax就是多分类版本的逻辑回归。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢老板！<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/img/WeChatQRCode.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -201,7 +331,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -214,290 +344,66 @@
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/23/TF-IDF/" class="archive-article-date">
-  	<time datetime="2020-08-23T03:37:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-23</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/23/TF-IDF/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">TF-IDF</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/23/TF-IDF/">TF-IDF</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">TF-IDF</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">关键词提取</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/NLP//" class="article-tag-list-link color4">NLP</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0. 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92"><span class="toc-number">2.</span> <span class="toc-text">1. 逻辑回归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Softmax%E5%9B%9E%E5%BD%92"><span class="toc-number">3.</span> <span class="toc-text">2. Softmax回归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92%E7%9A%84%E8%81%94%E7%B3%BB"><span class="toc-number">4.</span> <span class="toc-text">3. 逻辑回归和Softmax回归的联系</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/21/VSCode%E6%90%AD%E5%BB%BAC++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" class="archive-article-date">
-  	<time datetime="2020-08-21T07:42:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/21/VSCode%E6%90%AD%E5%BB%BAC++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">VSCode搭建C++开发环境</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">VSCode</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">环境搭建</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/软件安装与环境搭建//" class="article-tag-list-link color5">软件安装与环境搭建</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/" class="archive-article-date">
-  	<time datetime="2020-08-19T08:50:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-19</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/">深入理解SVD</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">SVD</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">降维</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">矩阵分解</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/数学基础//" class="article-tag-list-link color5">数学基础</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/18/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" class="archive-article-date">
-  	<time datetime="2020-08-18T09:43:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/18/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">NLP</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">数据预处理</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/NLP//" class="article-tag-list-link color4">NLP</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/15/%E8%BF%99%E4%B8%AA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99%E7%9A%84%E5%87%BA%E7%94%9F%E8%AF%81%E6%98%8E/" class="archive-article-date">
-  	<time datetime="2020-08-15T07:49:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/15/%E8%BF%99%E4%B8%AA%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99%E7%9A%84%E5%87%BA%E7%94%9F%E8%AF%81%E6%98%8E/">这个博客网站的出生证明</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">blog</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">yilia</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">前端</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/博客搭建//" class="article-tag-list-link color5">博客搭建</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -520,8 +426,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
