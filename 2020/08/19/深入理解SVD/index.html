@@ -8,12 +8,12 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>深入理解SVD | Blog | Wolfberry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="0. 前言 SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。">
+  <meta name="description" content="0. 前言SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入理解SVD">
 <meta property="og:url" content="http://yoursite.com/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/index.html">
 <meta property="og:site_name" content="Blog | Wolfberry">
-<meta property="og:description" content="0. 前言 SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。">
+<meta property="og:description" content="0. 前言SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/19/dle89U.png">
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/19/dlZjpD.png">
@@ -176,39 +176,35 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0-前言">0. 前言</h2>
-<p>SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。</p>
+        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>SVD(Singular Value Decomposition)是在机器学习领域广泛应用的算法，它不光可以用于降维算法中的特征分解，还可以用于推荐系统，以及自然语言处理等领域。是很多机器学习算法的基石。</p>
 <a id="more"></a>
-<h2 id="1-实对称矩阵的分解">1. 实对称矩阵的分解</h2>
-<p>先来看一个直观的例子：</p>
+<h2 id="1-实对称矩阵的分解"><a href="#1-实对称矩阵的分解" class="headerlink" title="1. 实对称矩阵的分解"></a>1. 实对称矩阵的分解</h2><p>先来看一个直观的例子：</p>
 <p>考虑以下线性变换$M = [[2, 1],[1, 2]]$， 该矩阵变换效果如图所示：</p>
-<img src="https://s1.ax1x.com/2020/08/19/dle89U.png" alt="dle89U.png" style="zoom: 80%;" />
+<p><img src="https://s1.ax1x.com/2020/08/19/dle89U.png" alt="dle89U.png" style="zoom: 80%;" /></p>
 <p>经过该变换后，原来的基底 $(u_x, u_y)$ 经过变换以后变为 $(v_x, v_y)$，而 $(v_x, v_y)$ 不正交，无法得出旋转角度、拉伸倍数等信息。若将原图旋转45度，再做 $M$ 变换：</p>
-<p>​									<img src="https://s1.ax1x.com/2020/08/19/dlZjpD.png" alt="dlZjpD.png" style="zoom: 80%;" /></p>
+<p>​                                    <img src="https://s1.ax1x.com/2020/08/19/dlZjpD.png" alt="dlZjpD.png" style="zoom: 80%;" /> </p>
 <p>旋转后的基底为 $(\frac{\sqrt 2}{2}, \frac{\sqrt 2}{2})$ 和 $(-\frac{\sqrt 2}{2}, \frac{\sqrt 2}{2})$，经过 $M$ 变换后的基底为 $(\frac{3\sqrt2}{2}, \frac{3\sqrt2}{2})$ 和 $(-\frac{\sqrt2}{2}, \frac{\sqrt2}{2})$，相当于做了一个 $M = [[3, 0],[0, 1]]$ 的变换，经过该变换后，原来正交的基底仍然正交。</p>
 <p>所以，对于任意一个对称矩阵 $M$ ，若能找到一些相互正交的 $v_i$，使得 $Mv_i$是沿着 $v_i$ 方向的拉伸变换，即有 $Mv_i = \lambda_iv_i$  。这里，$\lambda_i$ 为矩阵的特征值；$v_i$ 是特征向量。<strong>由于对称矩阵中不同特征值对应的特征向量正交，所以 $v_i$ 必定两两正交。</strong></p>
 <p>以上面的矩阵 $M = [[2, 1],[1, 2]]$ 为例，$M$ 的特征向量为 $v_1= [\frac{\sqrt2}{2}, \frac{\sqrt2}{2}]$  和 $v_2 = [-\frac{\sqrt2}{2}, \frac{\sqrt2}{2}]$  ，对应的特征值为 $\lambda_1 = 3, \lambda_2 = 1$。</p>
 <p>则 $M = [v_1, v_2]\times [[\lambda_1, 0][0, \lambda_2]]\times [v_1, v_2]^T$</p>
 <p><strong>矩阵对角化分解的目的是：找到一组正交单位基，使得经过变换后的基仍然正交。</strong></p>
-<p><em><strong>补充证明：实对称矩阵不同特征值对应的特征值两两正交</strong></em></p>
+<p><strong><em>补充证明：实对称矩阵不同特征值对应的特征值两两正交</em></strong></p>
 <p>证明：对任意实对称矩阵 $A$， 假设 $A$ 的两个特征值为 $m, n(m \ne n)$ 对应的特征向量为 $p, q$，则有：</p>
-<p>​	 $Aq = nq, Ap = mp$</p>
+<p>​     $Aq = nq, Ap = mp$</p>
 <p>$\Rightarrow p^TAq = np^Tq, q^TAp = mq^Tp$</p>
 <p>$\Rightarrow np^Tq = (mq^Tp)^T = mp^Tq$</p>
 <p>$\Rightarrow (n-m)p^Tq$ = 0</p>
 <p>又 $m\ne n$，所以 $p^Tq = 0$，$p, q$ 正交。</p>
-<h2 id="2-SVD分解">2. SVD分解</h2>
-<p>上述变换是基于对称阵的，如果将对称阵变为一般矩阵 $A_{m \times n}$，那么上述分解的过程就称作奇异值分解(SVD)。即在 $n$ 维空间中找到一组正交基，经过 $A$ 变换后在 $m$ 维空间中仍然正交。</p>
+<h2 id="2-SVD分解"><a href="#2-SVD分解" class="headerlink" title="2. SVD分解"></a>2. SVD分解</h2><p>上述变换是基于对称阵的，如果将对称阵变为一般矩阵 $A_{m \times n}$，那么上述分解的过程就称作奇异值分解(SVD)。即在 $n$ 维空间中找到一组正交基，经过 $A$ 变换后在 $m$ 维空间中仍然正交。</p>
 <p>考虑矩阵 $A^TA$ ，我们取 $A^TA$ 的特征向量并单位化，得到 $(v_1, v_2, …, v_n)$，$||Av||^2 = v^TA^TAv = v^T\lambda v = \lambda$，所以 $|Av| = \sqrt \lambda = \sigma$ 。$\sigma$ 为矩阵的奇异值。</p>
 <p>正交单位向量 $(v_1, v_2, … v_n)$ 经过 $A$ 变换后得到$(Av_1, Av_2, …)$，将其单位化得到一组标准正交基 $(u_1, u_2, …)$，则 $Av_i = \sigma_iu_i$，$AV = (\sigma_1u_1, … ,\sigma_nu_n) = U\Sigma$ ，得到矩阵 $A$ 的分解</p>
 <p>$A = U\Sigma V^{-1} = U\Sigma V^T$</p>
 <p>其中， $V^T$ 为原向量空间的标准正交基，$U$ 为变换后空间标准正交基，$\Sigma$ 为对角矩阵，对角线的值为奇异值。</p>
-<img src="https://s1.ax1x.com/2020/08/19/dlbaUx.png" alt="dlbaUx.png" style="zoom:80%;" />
-<h2 id="3-SVD的性质">3. SVD的性质</h2>
-<p>对于奇异值，它跟我们特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的减少特别的快，<strong>在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例</strong>。也就是说，我们也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵。也就是说：</p>
-<p>$A_{m \times n} = U_{m \times m}\Sigma_{m \times n} V^T_{n \times n} \approx U_{m \times k}\Sigma_{k \times k} V^T_{k \times n}$</p>
-<p>其中k要比n小很多，也就是一个大的矩阵A可以用三个小的矩阵 $U_{m \times k},\Sigma_{k \times k} ,V^T_{k \times n}$ 来表示，如下图所示。</p>
-<img src="https://s1.ax1x.com/2020/08/19/dlbD2D.png" alt="dlbD2D.png" style="zoom: 67%;" />
+<p><img src="https://s1.ax1x.com/2020/08/19/dlbaUx.png" alt="dlbaUx.png" style="zoom:80%;" /></p>
+<h2 id="3-SVD的性质"><a href="#3-SVD的性质" class="headerlink" title="3. SVD的性质"></a>3. SVD的性质</h2><p>对于奇异值，它跟我们特征分解中的特征值类似，在奇异值矩阵中也是按照从大到小排列，而且奇异值的减少特别的快，<strong>在很多情况下，前10%甚至1%的奇异值的和就占了全部的奇异值之和的99%以上的比例</strong>。也就是说，我们也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵。也就是说：</p>
+<p>$A<em>{m \times n} = U</em>{m \times m}\Sigma<em>{m \times n} V^T</em>{n \times n} \approx U<em>{m \times k}\Sigma</em>{k \times k} V^T_{k \times n}$</p>
+<p>其中k要比n小很多，也就是一个大的矩阵A可以用三个小的矩阵 $U<em>{m \times k},\Sigma</em>{k \times k} ,V^T_{k \times n}$ 来表示，如下图所示。</p>
+<p><img src="https://s1.ax1x.com/2020/08/19/dlbD2D.png" alt="dlbD2D.png" style="zoom: 67%;" /></p>
 
       
 
@@ -453,6 +449,22 @@ MathJax.Hub.Queue(function() {
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Harris Corner</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Feature Extraction</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Linear Algebra</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Computer Vision</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Logistic Regression</a>
               </li>
              
@@ -473,11 +485,11 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">TF-IDF</a>
+                <a href="javascript:void(0)" class="js-tag color4">NLP</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">关键词提取</a>
+                <a href="javascript:void(0)" class="js-tag color2">TF-IDF</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -486,10 +498,6 @@ MathJax.Hub.Queue(function() {
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">环境搭建</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">NLP</a>
               </li>
              
               <li class="article-tag-list-item">

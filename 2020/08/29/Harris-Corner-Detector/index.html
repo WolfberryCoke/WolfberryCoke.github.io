@@ -6,15 +6,29 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: 降维 | Blog | Wolfberry</title>
+  <title>Harris Corner Detector | Blog | Wolfberry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Blog | Wolfberry">
-<meta property="og:url" content="http://yoursite.com/tags/%E9%99%8D%E7%BB%B4/index.html">
+  <meta name="description" content="0. 前言特征点检测是计算机视觉中很重要的环节。传统的机器学习算法的表现依赖于图像特征的提取。Harris角点检测（Harris Corner Detection）是一个基础的算法，它提出了应用邻近像素点灰度差值概念，从而进行判断是否为角点、边缘、平滑区域。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Harris Corner Detector">
+<meta property="og:url" content="http://yoursite.com/2020/08/29/Harris-Corner-Detector/index.html">
 <meta property="og:site_name" content="Blog | Wolfberry">
+<meta property="og:description" content="0. 前言特征点检测是计算机视觉中很重要的环节。传统的机器学习算法的表现依赖于图像特征的提取。Harris角点检测（Harris Corner Detection）是一个基础的算法，它提出了应用邻近像素点灰度差值概念，从而进行判断是否为角点、边缘、平滑区域。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/29/dH3zlQ.png">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/29/dHGhKH.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/29/dHYy9K.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/29/dH0bid.png">
+<meta property="og:image" content="https://s1.ax1x.com/2020/08/29/dHBnwF.png">
+<meta property="article:published_time" content="2020-08-29T14:29:26.000Z">
+<meta property="article:modified_time" content="2020-08-29T14:31:32.882Z">
 <meta property="article:author" content="Wolfberry">
+<meta property="article:tag" content="Harris Corner">
+<meta property="article:tag" content="Feature Extraction">
+<meta property="article:tag" content="Linear Algebra">
+<meta property="article:tag" content="Computer Vision">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2020/08/29/dH3zlQ.png">
   
   
     <link rel="icon" href="/assets/img/head.png">
@@ -144,79 +158,202 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Harris-Corner-Detector" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/" class="archive-article-date">
-  	<time datetime="2020-08-19T08:50:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-19</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/08/19/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3SVD/">深入理解SVD</a>
+    <h1 class="article-title" itemprop="name">
+      Harris Corner Detector
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2020/08/29/Harris-Corner-Detector/" class="archive-article-date">
+  	<time datetime="2020-08-29T14:29:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>特征点检测是计算机视觉中很重要的环节。传统的机器学习算法的表现依赖于图像特征的提取。Harris角点检测（Harris Corner Detection）是一个基础的算法，它提出了应用邻近像素点灰度差值概念，从而进行判断是否为角点、边缘、平滑区域。</p>
+<a id="more"></a>
+<h2 id="1-Harris角点检测"><a href="#1-Harris角点检测" class="headerlink" title="1. Harris角点检测"></a>1. Harris角点检测</h2><p>人眼很容易识别一张图片的边缘和角点信息。如下图，我们一眼就能看出这是一个圆形轮廓，这是因为在边缘处颜色突变，如红色箭头所指，红色箭头处从黑色突变到白色，所以形成了圆形的轮廓。</p>
+<p>​                                                                <img src="https://s1.ax1x.com/2020/08/29/dH3zlQ.png" alt="dH3zlQ.png">            </p>
+<p>计算机检测边缘信息的方法和人眼类似，也是通过检测颜色（像素值）的变化从而检测边缘信息。人眼对角点的识别通常是在一个局部的小区域或小窗口完成的。如果在各个方向上移动这个特征的小窗口，窗口内区域的灰度发生了较大的变化，那么就认为在窗口内遇到了角点。如果灰度没有发生变化，那么窗口内就不存在角点；如果窗口只在某一个方向移动时，窗口内图像的灰度发生了较大的变化，那么，窗口内的图像可能就是一条直线的线段。</p>
+<p><img src="https://s1.ax1x.com/2020/08/29/dHGhKH.jpg" alt="dHGhKH.jpg" style="zoom:50%;" /></p>
+<p>对于给定图像 $I(x, y)$ 和固定尺寸的邻域窗口 $I(x+u, v+y)$，计算窗口平移前后各个像素差值的平方和。</p>
+<script type="math/tex; mode=display">
+E(u,v)=\Sigma_x\Sigma_yw(x,y)[I(x+u,y+v)-I(x,y)]^2</script><p>其中，$I(x, y)$ 和 $I(x+u, y+v)$ 是平移前后的像素值。$w(x, y)$ 是窗口函数，可以取均值函数或者高斯函数，如图所示。</p>
+<p><img src="https://s1.ax1x.com/2020/08/29/dHYy9K.jpg" alt="dHYy9K.jpg"></p>
+<p>如果我们希望检测到角点，那么我们自然希望 $E(u,v)$ 越大越好。</p>
+<p>根据二元函数的泰勒展开</p>
+<script type="math/tex; mode=display">
+f(x+u,y+v) = f(x,y)+uf_x(x,y)+vf_y(x,y)+\sigma(x,y)</script><p>得到</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+&\sum(I(x+u, y+v)-I(x,y))^2 \\\\
+& = \sum(I(x,y)+uI_x+vI_y-I(x,y))^2 \\\\
+&= \sum(uI_x+vI_y)^2 \\\\
+& = \sum \left[\begin{matrix}u & v\end{matrix}\right] \left[ \begin{matrix} I_x^2 & I_xI_y \\\\ I_xI_y & I_y^2\end{matrix}\right] \left[ \begin{matrix} u\\\\ v\end{matrix} \right]
+\end{align*}</script><p>所以</p>
+<script type="math/tex; mode=display">
+E(u,v) = \left[\begin{matrix}u & v\end{matrix}\right] M\left[ \begin{matrix} u\\\\ v\end{matrix} \right]</script><p>其中</p>
+<script type="math/tex; mode=display">
+M = \sum_{x,y}w(x,y)\left[ \begin{matrix} I_x^2 & I_xI_y \\\\ I_xI_y & I_y^2\end{matrix}\right]</script><p>由于 $M$ 是对称矩阵，可将其对角化</p>
+<script type="math/tex; mode=display">
+M = P\left[ \begin{matrix} \lambda_1 & 0 \\\\ 0 & \lambda_2 \end{matrix}\right] P^T</script><p>$\lambda_1, \lambda_2$ 是 $M$ 的特征值。</p>
+<p>所以</p>
+<script type="math/tex; mode=display">
+\begin{align*}
+& E(u,v) = \left[\begin{matrix}u & v\end{matrix}\right]P\left[ \begin{matrix} \lambda_1 & 0 \\\\ 0 & \lambda_2 \end{matrix}\right] P^T \left[ \begin{matrix} u\\\\ v\end{matrix} \right] \\\\ 
+& = \left[\begin{matrix}u^{'} & v^{'}\end{matrix}\right]\left[ \begin{matrix} \lambda_1 & 0 \\\\ 0 & \lambda_2 \end{matrix}\right]  \left[ \begin{matrix} u^{'}\\\\ v^{'}\end{matrix} \right] \\\\
+& = \lambda_1(u^{'})^2 + \lambda_2(u^{'})^2
+\end{align*}</script><p>这是一个椭圆方程，$\sqrt{\frac{1}{\lambda_1}}, \sqrt{\frac{1}{\lambda_2}}$ 是椭圆的半长短轴。</p>
+<p>所以，可根据矩阵 $M$ 的特征值来判断是否为角点，当两个特征值都较大时为角点(Corner)，一个特征值远大于另一个时则为图像边缘(Edge)，两个特征值都很小时为均匀区域(Flat)。</p>
+<p><img src="https://s1.ax1x.com/2020/08/29/dH0bid.png" alt="dH0bid.png" style="zoom: 50%;" /></p>
+<p>在实际计算时，我们需要设定一个和 $\lambda_1, \lambda_2$ 相关的指标：</p>
+<script type="math/tex; mode=display">
+C = \lambda_1\lambda_2 - \alpha(\lambda_1+\lambda_2)^2</script><p>其中 $\lambda_1\lambda_2$ 是矩阵 $M$ 的行列式，$\lambda_1 + \lambda_2$ 是矩阵的迹，$\alpha$ 是常数。所以平价指标就变成了下图所示：</p>
+<p><img src="https://s1.ax1x.com/2020/08/29/dHBnwF.png" alt="dHBnwF.png" style="zoom:50%;" /></p>
+<h2 id="2-总结"><a href="#2-总结" class="headerlink" title="2. 总结"></a>2. 总结</h2><p>Harris角点检测的一般步骤为：</p>
+<ul>
+<li>对每个像素点计算 $M$ 矩阵</li>
+<li>计算 $C$ ，找出大于阈值的点($C&gt;threshold$)</li>
+<li>使用非极大值抑制找出 $C$ 局部最大值</li>
+</ul>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢老板！<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/img/WeChatQRCode.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">SVD</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Harris Corner</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">降维</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Feature Extraction</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">矩阵分解</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Linear Algebra</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Computer Vision</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/数学基础//" class="article-tag-list-link color5">数学基础</a>
+        			<a href="/categories/Computer-Vision//" class="article-tag-list-link color1">Computer Vision</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2020/08/28/Logistic%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Logistic回归和Softmax回归</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0. 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Harris%E8%A7%92%E7%82%B9%E6%A3%80%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text">1. Harris角点检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">2. 总结</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -239,9 +376,9 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
