@@ -8,17 +8,17 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Logistic回归和Softmax回归 | Blog | Wolfberry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="0. 前言逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。">
+  <meta name="description" content="0. 前言 逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Logistic回归和Softmax回归">
 <meta property="og:url" content="http://yoursite.com/2020/08/28/Logistic%E5%9B%9E%E5%BD%92%E5%92%8CSoftmax%E5%9B%9E%E5%BD%92/index.html">
 <meta property="og:site_name" content="Blog | Wolfberry">
-<meta property="og:description" content="0. 前言逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。">
+<meta property="og:description" content="0. 前言 逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/27/dhsrEn.png">
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/28/d5zh11.jpg">
 <meta property="article:published_time" content="2020-08-28T02:47:24.000Z">
-<meta property="article:modified_time" content="2020-08-28T03:42:57.156Z">
+<meta property="article:modified_time" content="2020-09-01T08:12:38.038Z">
 <meta property="article:author" content="Wolfberry">
 <meta property="article:tag" content="Logistic Regression">
 <meta property="article:tag" content="Softmax">
@@ -176,60 +176,100 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。</p>
+        <h2 id="0-前言">0. 前言</h2>
+<p>逻辑回归和Softmax回归是两个基础的分类模型（尽管他们的名字中有“回归”二字）。逻辑回归处理二分类问题；Softmax回归处理多酚类问题，通常在分类神经网络的最后一个layer中出现。这篇文章将从数学角度详解逻辑回归和Softmax回归的关系。</p>
 <a id="more"></a>
-<h2 id="1-逻辑回归"><a href="#1-逻辑回归" class="headerlink" title="1. 逻辑回归"></a>1. 逻辑回归</h2><p>逻辑回归是由线性回归演化而来的，这也是为什么它尽管是分类模型却仍然叫“回归”。逻辑回归本质上是归一化后的线性回归，它把线性回归的输出 $\theta^T x$ 通过Sigmoid“压缩”到 $(0, 1)$ 区间，表示预测结果属于某一类别的概率：</p>
-<script type="math/tex; mode=display">
-h_\theta(x) = g(\theta^Tx)</script><script type="math/tex; mode=display">
-g(z) = \frac{1}{1+e^{-z}}</script><p>​                                                            <img src="https://s1.ax1x.com/2020/08/27/dhsrEn.png" alt="dhsrEn.png"></p>
-<p>由于 $h_\theta(x)$ 表示结果为1的概率，因此分类结果为类别1和类别0的概率分别为：</p>
-<script type="math/tex; mode=display">
-P(y=1|x;\theta) = h_\theta(x) = \frac{1}{1+e^{-\theta^Tx}} \\\\
-P(y=0|x;\theta) = 1-h_\theta(x) = \frac{e^{-\theta^Tx}}{1+e^{-\theta^Tx}}</script><p>可以把公式(3)合并成一个式子：</p>
-<script type="math/tex; mode=display">
-P(y|x;\theta) = (h_\theta(x))^y(1-h_\theta(x))^{1-y}</script><p>使用最大似然估计来估计参数 $\theta$ 的值，取似然函数：</p>
-<script type="math/tex; mode=display">
-L(\theta) = \prod_{i=1}^{m}P(y^{(i)}|x^{(i)};\theta) = \prod_{i=1}^{m}(h_\theta(x^{(i)}))^{y^{(i)}}(1-h_\theta(x)^{(i)})^{1-y^{(i)}}</script><p>取对数得：</p>
-<script type="math/tex; mode=display">
-l(\theta) = logL(\theta) = \sum_{i=1}^{m}(y^{(i)}log(h_\theta(x^{(i)})+(1-y^{(i)})log(1-h_\theta(x^{(i)}))))</script><p>优化目标是取 $l(\theta)$ 的最大值，将 $l(\theta)$ 乘以负的系数（这样就转化为求最小值，可以用梯度下降法），再除以样本数量m，得到损失函数：</p>
-<script type="math/tex; mode=display">
-J(\theta) = -\frac{1}{m}l(\theta)</script><p>使用梯度下降法来求得 $argmin(J(\theta))$ :</p>
-<script type="math/tex; mode=display">
-\theta_j := \theta_j - \alpha \frac{\partial}{\partial\theta_j}J(\theta), j = (0, 1, ... n) \\\\
-\theta_j := \theta_j - \alpha \sum_{i=1}^{m}(y^{(i)}-h_\theta(x^{(i)})x_j^{(i)}), j = (0, 1, ... n)</script><p>现在我们已经求得了最优的参数，现在如果需要预测一个数据x，只需要代入假设函数 $h_\theta(x)$，函数输出的结果就是类别为1的概率。</p>
-<h2 id="2-Softmax回归"><a href="#2-Softmax回归" class="headerlink" title="2. Softmax回归"></a>2. Softmax回归</h2><p>对于有 $k$ 个标记的分类问题，分类函数是下面这样：</p>
-<p>$h<em>{\theta}\left(x^{(i)}\right)=\left[\begin{array}{c}<br>p\left(y^{(i)}=1 \mid x^{(i)}, \theta\right) \\<br>p\left(y^{(i)}=2 \mid x^{(i)}, \theta\right) \\<br>\vdots \\<br>p\left(y^{(i)}=k \mid x^{(i)}, \theta\right)<br>\end{array}\right]=\frac{1}{\sum</em>{c=1}^{k} e^{\theta<em>{c} T(i)}}\left[\begin{array}{c}<br>e^{\theta</em>{1}^{T} x^{(i)}} \\<br>e^{\theta<em>{2}^{T} x^{(i)}} \\<br>\vdots \\<br>e^{\theta</em>{k}^{T} x^{(i)}}<br>\end{array}\right]$</p>
-<p>其中 $\frac{1}{\sum<em>{j=1}^{k} e^{\theta</em>{j}^{T} x^{(i)}}}$ 是归一化参数，为了使所有概率值和为1，下图很直观地描述了Softmax函数的计算过程。</p>
+<h2 id="1-逻辑回归">1. 逻辑回归</h2>
+<p>逻辑回归是由线性回归演化而来的，这也是为什么它尽管是分类模型却仍然叫“回归”。逻辑回归本质上是归一化后的线性回归，它把线性回归的输出 $\theta^T x$ 通过Sigmoid“压缩”到 $(0, 1)$ 区间，表示预测结果属于某一类别的概率：<br>
+$$<br>
+h_\theta(x) = g(\theta^Tx)<br>
+$$</p>
+<p>$$<br>
+g(z) = \frac{1}{1+e^{-z}}<br>
+$$</p>
+<p>​															<img src="https://s1.ax1x.com/2020/08/27/dhsrEn.png" alt="dhsrEn.png"></p>
+<p>由于 $h_\theta(x)$ 表示结果为1的概率，因此分类结果为类别1和类别0的概率分别为：<br>
+$$<br>
+P(y=1|x;\theta) = h_\theta(x) = \frac{1}{1+e^{-\theta^Tx}} \\<br>
+P(y=0|x;\theta) = 1-h_\theta(x) = \frac{e^{-\theta^Tx}}{1+e^{-\theta^Tx}}<br>
+$$<br>
+可以把公式(3)合并成一个式子：<br>
+$$<br>
+P(y|x;\theta) = (h_\theta(x))^y(1-h_\theta(x))^{1-y}<br>
+$$<br>
+使用最大似然估计来估计参数 $\theta$ 的值，取似然函数：<br>
+$$<br>
+L(\theta) = \prod_{i=1}^{m}P(y^{(i)}|x^{(i)};\theta) = \prod_{i=1}^{m}(h_\theta(x^{(i)}))^{y^{(i)}}(1-h_\theta(x)^{(i)})^{1-y^{(i)}}<br>
+$$<br>
+取对数得：<br>
+$$<br>
+l(\theta) = logL(\theta) = \sum_{i=1}^{m}(y^{(i)}log(h_\theta(x^{(i)})+(1-y^{(i)})log(1-h_\theta(x^{(i)}))))<br>
+$$<br>
+优化目标是取 $l(\theta)$ 的最大值，将 $l(\theta)$ 乘以负的系数（这样就转化为求最小值，可以用梯度下降法），再除以样本数量m，得到损失函数：<br>
+$$<br>
+J(\theta) = -\frac{1}{m}l(\theta)<br>
+$$<br>
+使用梯度下降法来求得 $argmin(J(\theta))$ :<br>
+$$<br>
+\theta_j := \theta_j - \alpha \frac{\partial}{\partial\theta_j}J(\theta), j = (0, 1, … n) \\<br>
+\theta_j := \theta_j - \alpha \sum_{i=1}^{m}(y^{(i)}-h_\theta(x^{(i)})x_j^{(i)}), j = (0, 1, … n)<br>
+$$<br>
+现在我们已经求得了最优的参数，现在如果需要预测一个数据x，只需要代入假设函数 $h_\theta(x)$，函数输出的结果就是类别为1的概率。</p>
+<h2 id="2-Softmax回归">2. Softmax回归</h2>
+<p>对于有 $k$ 个标记的分类问题，分类函数是下面这样：</p>
+<p>$h_{\theta}\left(x^{(i)}\right)=\left[\begin{array}{c}<br>
+p\left(y^{(i)}=1 \mid x^{(i)}, \theta\right) \\<br>
+p\left(y^{(i)}=2 \mid x^{(i)}, \theta\right) \\<br>
+\vdots \\<br>
+p\left(y^{(i)}=k \mid x^{(i)}, \theta\right)<br>
+\end{array}\right]=\frac{1}{\sum_{c=1}^{k} e^{\theta_{c} T(i)}}\left[\begin{array}{c}<br>
+e^{\theta_{1}^{T} x^{(i)}} \\<br>
+e^{\theta_{2}^{T} x^{(i)}} \\<br>
+\vdots \\<br>
+e^{\theta_{k}^{T} x^{(i)}}<br>
+\end{array}\right]$</p>
+<p>其中 $\frac{1}{\sum_{j=1}^{k} e^{\theta_{j}^{T} x^{(i)}}}$ 是归一化参数，为了使所有概率值和为1，下图很直观地描述了Softmax函数的计算过程。</p>
 <p><img src="https://s1.ax1x.com/2020/08/28/d5zh11.jpg" alt="d5zh11.jpg"></p>
-<p>类比逻辑回归，得到损失函数：</p>
-<script type="math/tex; mode=display">
-J(\theta)=-\frac{1}{m}\left[\sum_{i=1}^{m} \sum_{j=1}^{k} 1\\{y^{(i)}=j\\} \log \frac{e^{\theta_{j}^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}}}\right]</script><p>其中的 $1\{…\}$ 的含义为：大括号中的值为真时，该函数的结果就为1，否则其结果就为0。</p>
-<p>求偏导，得:</p>
-<script type="math/tex; mode=display">
-\nabla_{\theta_{j}} J(\theta)=-\frac{1}{m} \sum_{i=1}^{m}\left[x^{(i)}\left(1\\{y^{(i)}=j\\}-p\left(y^{(i)}=j \mid x^{(i)} ; \theta\right)\right)\right]</script><p>之后和逻辑回归类似，用梯度下降法求得参数即可。</p>
-<h2 id="3-逻辑回归和Softmax回归的联系"><a href="#3-逻辑回归和Softmax回归的联系" class="headerlink" title="3. 逻辑回归和Softmax回归的联系"></a>3. 逻辑回归和Softmax回归的联系</h2><p>首先介绍一个Softmax的性质——参数冗余</p>
-<p>假设我们从参数向量 $\theta_j$ 中减去了向量 $\phi$，这时，每一个 $\theta_j$ 都变成了 $\theta_j - \phi$。此时假设函数变成了以下的式子：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-p\left(y^{(i)}=j \mid x^{(i)} ; \theta\right) &=\frac{e^{\left(\theta_{j}-\psi\right)^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\left(\theta_{l}-\psi\right)^{T} x^{(i)}}} \\\\
-&=\frac{e^{\theta_{j}^{T} x^{(i)}} e^{-\psi^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}} e^{-\psi^{T} x^{(i)}}} \\\\
-&=\frac{e^{\theta_{j}^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}}}
-\end{aligned}</script><p>这个性质说明，从参数向量中减去任何的值，都不影响最后的结果。也就是说，如果参数 $(\theta_1, \theta_2, … \theta_k)$ 是极小值点，那么 $(\theta_1-\phi, \theta_2-\phi, … \theta_k-\phi)$ 也是极小值点。所以，当 $\phi = \theta_1$ 时，参数变为 $(0, \theta_2^{‘}, \theta_3^{‘}… \theta_k^{‘})$ ，说明原来有一个冗余的参数。</p>
-<p>我们之前提到，Softmax解决多分类问题，逻辑回归解决二分类问题。那么当Softmax中类别为2的时候，它也是解决二分类问题。下面我们将 $k=2$ 代入Softmax函数中，和逻辑回归的公式比较：</p>
-<script type="math/tex; mode=display">
-h_{\theta}(x)=\frac{1}{e^{\theta_{1}^{T} x}+e^{\theta_{2}^{T} x^{(i)}}}\left[\begin{array}{l}
-e^{\theta_{1}^{T} x} \\\\
-e^{\theta_{2}^{T} x}
-\end{array}\right]</script><p>根据上面提到的参数冗余特点，令 $\phi = \theta_1$ ，得：</p>
-<script type="math/tex; mode=display">
-h_{\theta}\left(x_{i}\right)=\frac{1}{e^{\overrightarrow{0}^{T} x_{i}}+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x_{i}}}\left[\begin{array}{c}
-e^{\overrightarrow0^T} x_{i} \\\\
-e^{\left(\theta_{2}-\theta_{1}\right)^{T} x_{i}}
-\end{array}\right] \\\\
-=\left[\begin{array}{c}
-\frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x^{(i)}}} \\\\
-1-\frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x^{(i)}}}
-\end{array}\right]</script><p>我们发现，当 $k = 2$ 时，Softmax预测其中一个类别的概率为 $\frac{1}{1+e^{\left(\theta^{\prime}\right)^{T} x^{(i)}}}$ ，另一个为 $1-\frac{1}{1+e^{\left(\theta^{\prime}\right)^{T} x^{(i)}}}$ ，这和逻辑回归的假设函数是完全一致的。所以，Softmax就是多分类版本的逻辑回归。</p>
+<p>类比逻辑回归，得到损失函数：<br>
+$$<br>
+J(\theta)=-\frac{1}{m}\left[\sum_{i=1}^{m} \sum_{j=1}^{k} 1\{ y^{(i)}=j \} \log \frac{e^{\theta_{j}^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}}}\right]<br>
+$$<br>
+其中的 $1\{…\}$ 的含义为：大括号中的值为真时，该函数的结果就为1，否则其结果就为0。</p>
+<p>求偏导，得:<br>
+$$<br>
+\nabla_{\theta_{j}} J(\theta)=-\frac{1}{m} \sum_{i=1}^{m}\left[x^{(i)}\left(1\{y^{(i)}=j\}-p\left(y^{(i)}=j \mid x^{(i)} ; \theta\right)\right)\right]<br>
+$$<br>
+之后和逻辑回归类似，用梯度下降法求得参数即可。</p>
+<h2 id="3-逻辑回归和Softmax回归的联系">3. 逻辑回归和Softmax回归的联系</h2>
+<p>首先介绍一个Softmax的性质——参数冗余</p>
+<p>假设我们从参数向量 $\theta_j$ 中减去了向量 $\phi$，这时，每一个 $\theta_j$ 都变成了 $\theta_j - \phi$。此时假设函数变成了以下的式子：<br>
+$$<br>
+\begin{aligned}<br>
+p\left(y^{(i)}=j \mid x^{(i)} ; \theta\right) &amp;=\frac{e^{\left(\theta_{j}-\psi\right)^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\left(\theta_{l}-\psi\right)^{T} x^{(i)}}} \\<br>
+&amp;=\frac{e^{\theta_{j}^{T} x^{(i)}} e^{-\psi^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}} e^{-\psi^{T} x^{(i)}}} \\<br>
+&amp;=\frac{e^{\theta_{j}^{T} x^{(i)}}}{\sum_{l=1}^{k} e^{\theta_{l}^{T} x^{(i)}}}<br>
+\end{aligned}<br>
+$$<br>
+这个性质说明，从参数向量中减去任何的值，都不影响最后的结果。也就是说，如果参数 $(\theta_1, \theta_2, … \theta_k)$ 是极小值点，那么 $(\theta_1-\phi, \theta_2-\phi, … \theta_k-\phi)$ 也是极小值点。所以，当 $\phi = \theta_1$ 时，参数变为 $(0, \theta_2^{’}, \theta_3^{’}… \theta_k^{’})$ ，说明原来有一个冗余的参数。</p>
+<p>我们之前提到，Softmax解决多分类问题，逻辑回归解决二分类问题。那么当Softmax中类别为2的时候，它也是解决二分类问题。下面我们将 $k=2$ 代入Softmax函数中，和逻辑回归的公式比较：<br>
+$$<br>
+h_{\theta}(x)=\frac{1}{e^{\theta_{1}^{T} x}+e^{\theta_{2}^{T} x^{(i)}}}\left[\begin{array}{l}<br>
+e^{\theta_{1}^{T} x} \\<br>
+e^{\theta_{2}^{T} x}<br>
+\end{array}\right]<br>
+$$<br>
+根据上面提到的参数冗余特点，令 $\phi = \theta_1$ ，得：<br>
+$$<br>
+h_{\theta}\left(x_{i}\right)=\frac{1}{e^{\overrightarrow{0}^{T} x_{i}}+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x_{i}}}\left[\begin{array}{c}<br>
+e^{\overrightarrow0^T} x_{i} \\<br>
+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x_{i}}<br>
+\end{array}\right] \\<br>
+=\left[\begin{array}{c}<br>
+\frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x^{(i)}}} \\<br>
+1-\frac{1}{1+e^{\left(\theta_{2}-\theta_{1}\right)^{T} x^{(i)}}}<br>
+\end{array}\right]<br>
+$$<br>
+我们发现，当 $k = 2$ 时，Softmax预测其中一个类别的概率为 $\frac{1}{1+e^{\left(\theta^{\prime}\right)^{T} x^{(i)}}}$ ，另一个为 $1-\frac{1}{1+e^{\left(\theta^{\prime}\right)^{T} x^{(i)}}}$ ，这和逻辑回归的假设函数是完全一致的。所以，Softmax就是多分类版本的逻辑回归。</p>
 
       
 

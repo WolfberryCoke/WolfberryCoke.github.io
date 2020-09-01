@@ -8,12 +8,12 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>TF-IDF | Blog | Wolfberry</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="0. 前言TF-IDF（Term Frequency–Inverse Document Frequency）是一种用于信息检索与文本挖掘的常用加权技术。TF-IDF是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。">
+  <meta name="description" content="0. 前言 TF-IDF（Term Frequency–Inverse Document Frequency）是一种用于信息检索与文本挖掘的常用加权技术。TF-IDF是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TF-IDF">
 <meta property="og:url" content="http://yoursite.com/2020/08/23/TF-IDF/index.html">
 <meta property="og:site_name" content="Blog | Wolfberry">
-<meta property="og:description" content="0. 前言TF-IDF（Term Frequency–Inverse Document Frequency）是一种用于信息检索与文本挖掘的常用加权技术。TF-IDF是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。">
+<meta property="og:description" content="0. 前言 TF-IDF（Term Frequency–Inverse Document Frequency）是一种用于信息检索与文本挖掘的常用加权技术。TF-IDF是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://s1.ax1x.com/2020/08/23/dwddLq.png">
 <meta property="article:published_time" content="2020-08-23T03:37:46.000Z">
@@ -173,19 +173,22 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><p>TF-IDF（Term Frequency–Inverse Document Frequency）是一种用于信息检索与文本挖掘的常用加权技术。TF-IDF是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。<strong>字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。</strong></p>
+        <h2 id="0-前言">0. 前言</h2>
+<p>TF-IDF（Term Frequency–Inverse Document Frequency）是一种用于信息检索与文本挖掘的常用加权技术。TF-IDF是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。<strong>字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。</strong></p>
 <a id="more"></a>
-<h2 id="1-一个例子"><a href="#1-一个例子" class="headerlink" title="1. 一个例子"></a>1. 一个例子</h2><p>现在假设有一篇文章《中国的蜜蜂养殖》，我们要对这篇文章提取关键词。一个很容易想到的思路是：将这篇文章的所有词语提取出来并统计，出现频率越高的词越可能是这篇文章的关键词。但实际操作的时候，出现了以下情况：</p>
+<h2 id="1-一个例子">1. 一个例子</h2>
+<p>现在假设有一篇文章《中国的蜜蜂养殖》，我们要对这篇文章提取关键词。一个很容易想到的思路是：将这篇文章的所有词语提取出来并统计，出现频率越高的词越可能是这篇文章的关键词。但实际操作的时候，出现了以下情况：</p>
 <p>统计表明，词频最高的词是——“的”，“是”，“在”，但这三个词显然不能作为这篇文章的关键词，因为几乎所有的中文文献中都会大量使用这三个词，光看这三个词我们不可能知道这篇文章的主题。所以我们把这类对结果毫无帮助的词（停用词）过滤掉。</p>
 <p>过滤掉停用词后，我们发现了以下三个高频词：“中国”，“蜜蜂”，“养殖”。这三个词在文章中出现的频率一样。那么是否说明这三个关键词对文章的重要性一样呢？显然不是。因为“中国”这个词很常见，在很多其他文献中都能找到这个词（例如中国古代历史、中国地质演变等等），而“蜜蜂”、“养殖”并不常见，所以，当这三个词在一篇文章中出现的频率一样，我们可以认为“蜜蜂”、“养殖”的重要程度大于“中国”。</p>
 <p>所以，在考虑关键词的时候，不光要考虑词语出现的频率，也要给每个词语分配一个“重要性”权重，<strong>这个权重应该和词语的常用程度成反比</strong>。所以最后的评估结果应该是词频*权重。</p>
-<h2 id="2-TF-IDF算法"><a href="#2-TF-IDF算法" class="headerlink" title="2. TF-IDF算法"></a>2. TF-IDF算法</h2><p>前面我们已经知道，评估某个词语在一篇文章的重要程度，平价指标应该是词频*权重。词频（TF）很好理解，就是该词在文章中出现的次数/文章的总词数。那么权重应该如何定义呢？</p>
+<h2 id="2-TF-IDF算法">2. TF-IDF算法</h2>
+<p>前面我们已经知道，评估某个词语在一篇文章的重要程度，平价指标应该是词频*权重。词频（TF）很好理解，就是该词在文章中出现的次数/文章的总词数。那么权重应该如何定义呢？</p>
 <p>我们首先建立一个语料库，用来模拟语言的使用环境。定义权重 $= log(\frac{语料库的文档总数}{包含该词的文档数+1})$ ，我们给权重一个新的名字：逆文档频率（IDF）。观察IDF的定义，当一个词越常见，那么分母就越大，IDF就越小，反之越大。</p>
 <p>最后，计算TF-IDF：</p>
 <p>$TF-IDF = TF \times IDF = \frac{该词在文章中出现的次数}{文章总词数} \times log(\frac{语料库的文档总数}{包含该词的文档数+1})$</p>
 <p>所以，使用TF-IDF算法提取关键词的步骤是：<strong>使用上述公式计算出每个单词的TF-IDF，然后按降序排列，取排在最前面的n个词。</strong></p>
-<p>在《中国蜜蜂养殖》中，“中国”、“蜜蜂”、“养殖”各出现20次。文章有1000个词，所以这三个词的TF都为0.02。然后，搜索Google发现，包含”的”字的网页共有250亿张，假定这就是中文网页总数。包含”中国”的网页共有62.3亿张，包含”蜜蜂”的网页为0.484亿张，包含”养殖”的网页为0.973亿张。计算这三个词的IDF如下：</p>
-<p><img src="https://s1.ax1x.com/2020/08/23/dwddLq.png" alt="dwddLq.png" style="zoom: 67%;" />    </p>
+<p>在《中国蜜蜂养殖》中，“中国”、“蜜蜂”、“养殖”各出现20次。文章有1000个词，所以这三个词的TF都为0.02。然后，搜索Google发现，包含&quot;的&quot;字的网页共有250亿张，假定这就是中文网页总数。包含&quot;中国&quot;的网页共有62.3亿张，包含&quot;蜜蜂&quot;的网页为0.484亿张，包含&quot;养殖&quot;的网页为0.973亿张。计算这三个词的IDF如下：</p>
+<img src="https://s1.ax1x.com/2020/08/23/dwddLq.png" alt="dwddLq.png" style="zoom: 67%;" />	
 <p>根据计算结果，发现蜜蜂的TF-IDF最高。所以，如果要求从中选出一个词作为这篇文章的关键词，应该选择“蜜蜂”。</p>
 
       
